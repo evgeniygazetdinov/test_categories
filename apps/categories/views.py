@@ -2,18 +2,16 @@ from django.shortcuts import render
 from rest_framework.generics import GenericAPIView
 from .models import Categories
 from .serializer import CategoriesSerializer
-import random
+from rest_framework.response import Response
 
 
 class CategoriesViewSet(GenericAPIView):
-    def create_randoms(self):
-        pass
 
 
     queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
 
+    def get(self,response):
 
-    def list(self):
-        serializer = self.get_serializer(queryset, many=True)
-        return serializer.data
+        serializer = self.get_serializer(self.get_queryset(), many=True)
+        return Response(serializer.data)
