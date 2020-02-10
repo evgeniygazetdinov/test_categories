@@ -8,56 +8,33 @@ import re
 
 class CategoriesSerializer(serializers.HyperlinkedModelSerializer):
     children = serializers.SerializerMethodField('find_property')
-
-    def do_same_length(self,category,children):
-        good_len =[]
-        if len(category) == len(children):
-            return children
+    def calculate_dif(self, l1, l2):
+        if len(l1)<len(l2):
+            res = len(l2)-len(l1)
+            for i in range(res):
+                l1.append(0)
+            return l1
         else:
-            #do work here
-            cut_len = len(children) - len(category)
-            for _ in range(cut_len):
-                good_len = children.pop()
-            return good_len
-
-    def extract_digits(self,name_category):
-        #extract digits for compare
-        string_for_compare = str(name_category)
-        res = re.findall(r'\d+',string_for_compare)
-        return res
-
-    def compare_categories(self,posible_children,name_category):
-        #find less for children
-        res = []
-        category = self.extract_digits(name_category)
-        maybe_children = self.extract_digits(posible_children)
-        #do maybe children good len for compare
-        children_for_compare = self.do_same_length(category,maybe_children)
-        print(children_for_compare)
-        for category_digit in category:
-            for children_digits in children_for_compare:
-                if category_digit < children_digits:
-                    break
-                else:
-                    res.append(children_digits)
-
+            return l1
 
 
     def find_relation(self,obj):
-        res =[]
-        name_category = obj.name
-        #find all without current category
+        child = []
+        name_category = (obj.name).split('.')
         all_names = Categories.objects.exclude(name = name_category)
-
-        for posible_children in all_names:
-            res.append(self.compare_categories(posible_children,name_category))
-        return res
+        for obj_name in all_names:
+            name_for_compare = (obj_name.name).split('.')
+            ref = self.calculate_dif(name_category,name_for_compare)
+            for i in range(len(name_for_compare)):
+                if ref[-i] == name_for_compare[-i]:
+                    if i > 2:
+                        child.append(obj_name.name)
+        return child
 
 
     def find_property(self,obj):
         return self.find_relation(obj)
 
-
     class Meta:
         model = Categories
-        fields = ['name','children']
+        fields = ['name','children', 'id']
