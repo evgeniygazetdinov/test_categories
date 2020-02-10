@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework.generics import GenericAPIView
 from .models import Categories
-from .serializer import CategoriesSerializer
+from .serializer import CategoriesSerializer, CategoriesRelationSerializer
 from rest_framework.response import Response
 from django.shortcuts import redirect
 
@@ -19,5 +19,12 @@ class CategoriesViewSet(GenericAPIView):
 
     def get(self,response):
 
+        serializer = self.get_serializer(self.get_queryset(), many=True)
+        return Response(serializer.data)
+
+class CategoriesRelationViewSet(CategoriesViewSet):
+    serializer_class = CategoriesRelationSerializer
+
+    def get(self,response,id):
         serializer = self.get_serializer(self.get_queryset(), many=True)
         return Response(serializer.data)

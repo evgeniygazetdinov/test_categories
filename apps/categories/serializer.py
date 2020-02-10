@@ -24,8 +24,9 @@ class CategoriesSerializer(serializers.HyperlinkedModelSerializer):
             ref = self.calculate_dif(name_category,name_for_compare)
             for i in range(len(name_for_compare)):
                 if ref[-i] == name_for_compare[-i]:
-                    if i > 2:
-                        child.append(obj_name.name)
+                    if i !=1 :
+                        if ref[i] != name_for_compare[i]:
+                            child.append(obj_name.name)
         return child
 
 
@@ -35,3 +36,14 @@ class CategoriesSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Categories
         fields = ['name','children']
+
+
+
+class CategoriesRelationSerializer(CategoriesSerializer):
+
+    def validate(self, data):
+        if self.instance:
+            object_id = self.instance.id
+        return data
+
+    fields = ['name',]
