@@ -16,6 +16,8 @@ Including another URLconf
 
 from django.urls import path
 from django.conf.urls import include
+from categories.views import redirect_to_main
 urlpatterns = [
+    path('', redirect_to_main),
     path('categories/', include('categories.urls'))
 ]

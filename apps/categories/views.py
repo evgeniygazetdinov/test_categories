@@ -3,6 +3,12 @@ from rest_framework.generics import GenericAPIView
 from .models import Categories
 from .serializer import CategoriesSerializer
 from rest_framework.response import Response
+from django.shortcuts import redirect
+
+
+
+def redirect_to_main(request):
+    return redirect('/categories/')
 
 
 class CategoriesViewSet(GenericAPIView):

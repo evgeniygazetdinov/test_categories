@@ -1,8 +1,5 @@
 from rest_framework import serializers
 from .models import Categories
-import re
-
-
 
 
 
@@ -37,4 +34,4 @@ class CategoriesSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Categories
-        fields = ['name','children', 'id']
+        fields = ['name','children']
