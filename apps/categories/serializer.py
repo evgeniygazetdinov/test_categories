@@ -14,7 +14,7 @@ class CategoriesSerializer(serializers.HyperlinkedModelSerializer):
         for obj_name in all_names_in_db:
             name_for_compare = re.findall('\d+', obj_name.name)
             if relation == "children":
-                if name_category[1] >= name_for_compare[1] and len(name_category) < len(name_for_compare):
+                if name_category[1] == name_for_compare[1] and len(name_category) < len(name_for_compare):
                     values.append(obj_name.name)
 
             if relation == 'parents':
