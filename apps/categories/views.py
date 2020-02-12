@@ -24,12 +24,10 @@ class CategoriesViewSet(GenericAPIView):
 
 class CategoriesRelationViewSet(GenericAPIView):
     serializer_class = CategoriesRelationSerializer
-    queryset = Categories.objects.all()
-
+    
     def get_queryset(self,*args,**kwargs):
         return Categories.objects.filter(id=self.kwargs['id'])
 
     def get(self,response,id):
-
         serializer = self.get_serializer(self.get_queryset(id), many=True)
         return Response(serializer.data)

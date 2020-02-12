@@ -1,55 +1,58 @@
 from rest_framework import serializers
 from .models import Categories
-
+import re
 
 
 class CategoriesSerializer(serializers.HyperlinkedModelSerializer):
-    children = serializers.SerializerMethodField('find_property')
-    def calculate_dif(self, refirence, for_compare):
-        #add zero into list for same length
-        if len(refirence)<len(for_compare):
-            res = len(for_compare)-len(refirence)
-            for i in range(res):
-                refirence.append(0)
-            return refirence
-        return refirence
+    children = serializers.SerializerMethodField('find_children')
 
-
-    def find_relation(self,obj,one_name_for_search = False):
-        child = []
-        name_category = (obj.name).split('.')
-        if one_name_for_search:
-            all_names_in_db = Categories.objects.filter(id = one_name_for_search)
-        else:
-            all_names_in_db = Categories.objects.exclude(name = name_category)
+    def find_relation(self, obj, relation):
+        values = []
+        #only list with values
+        name_category = re.findall('\d+', obj.name)
+        all_names_in_db = Categories.objects.exclude(name = name_category)
         for obj_name in all_names_in_db:
-            name_for_compare = (obj_name.name).split('.')
-            ref = self.calculate_dif(name_category,name_for_compare)
-            for i in range(len(name_for_compare)):
-                if ref[-i] == name_for_compare[-i]:
-                    if i !=1 :
-                        if ref[i] != name_for_compare[i]:
-                            child.append(obj_name.name)
+            name_for_compare = re.findall('\d+', obj_name.name)
+            if relation == "children":
+                if name_category[1] >= name_for_compare[1] and len(name_category) < len(name_for_compare):
+                    values.append(obj_name.name)
+
+            if relation == 'parents':
+                if name_category[1] <= name_for_compare[1] and len(name_for_compare) < len(name_category):
+                        values.append(obj_name.name)
+
+            if relation == 'sublings':
+                if name_category[1] >= name_for_compare[1] and name_category[-1] != name_for_compare[-1] and len(name_category) == len(name_for_compare):
+                        values.append(obj_name.name)
 
 
-        return child
+        return values
 
 
-    def find_property(self,obj):
-        return self.find_relation(obj)
+
+    def find_children(self, obj):
+        return self.find_relation(obj, 'children')
 
     class Meta:
         model = Categories
+
         fields = ['name','children']
 
 
 
 class CategoriesRelationSerializer(CategoriesSerializer):
-    children = serializers.SerializerMethodField('find_property')
+    children = serializers.SerializerMethodField('find_children')
+    sublings = serializers.SerializerMethodField('find_sublings')
+    parents = serializers.SerializerMethodField('find_parents')
+    def find_parents(self, obj):
+        return self.find_relation(obj, 'parents')
 
-    def find_property(self,obj):
-        return self.find_relation(obj)
+
+    def find_sublings(self, obj):
+        return self.find_relation(obj, 'sublings')
+
+
 
     class Meta:
         model = Categories
-        fields = ['name', 'id','children']
+        fields = ['name', 'id', 'children', 'sublings', 'parents']
